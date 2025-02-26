@@ -1,5 +1,5 @@
 from enum import Enum
-
+from database import Database
 
 class State(Enum):
     EXIT = 0
@@ -20,6 +20,7 @@ class StateEvent:
         from menu import Menu
         self.state = state
         self.menu = Menu()
+        self.database = Database()
 
     def handle_state(self) -> bool:
         state_actions = {
