@@ -1,0 +1,15 @@
+from enum import Enum
+
+class State(Enum):
+    EXIT = 0
+    MAIN_MENU = 1
+    CRUD_MENU = 2
+    TOP_TEN_MENU = 3
+    LIST_COMPANIES = 4
+    DELETE_COMPANY = 5
+    UPDATE_COMPANY = 6
+    READ_COMPANY = 7
+    CREATE_COMPANY = 8
+    LIST_COMPANIES_BY_ROA = 9
+    LIST_COMPANIES_BY_ROE = 10
+    LIST_COMPANIES_BY_ND_EBITDA = 11

@@ -1,23 +1,10 @@
-from enum import Enum
 from database import Database
+from state import State
+from menu import Menu
 
-class State(Enum):
-    EXIT = 0
-    MAIN_MENU = 1
-    CRUD_MENU = 2
-    TOP_TEN_MENU = 3
-    LIST_COMPANIES = 4
-    DELETE_COMPANY = 5
-    UPDATE_COMPANY = 6
-    READ_COMPANY = 7
-    CREATE_COMPANY = 8
-    LIST_COMPANIES_BY_ROA = 9
-    LIST_COMPANIES_BY_ROE = 10
-    LIST_COMPANIES_BY_ND_EBITDA = 11
 
 class StateEvent:
     def __init__(self, state):
-        from menu import Menu
         self.state = state
         self.menu = Menu()
         self.database = Database()
@@ -27,6 +14,11 @@ class StateEvent:
             State.MAIN_MENU: self.menu.main_menu,  # Maps states to respective functions.
             State.CRUD_MENU: self.menu.crud_menu,
             State.TOP_TEN_MENU: self.menu.top_ten_menu,
+            State.CREATE_COMPANY: self.database.create_company,
+            State.READ_COMPANY: self.database.read_company,
+            State.UPDATE_COMPANY: self.database.update_company,
+            State.DELETE_COMPANY: self.database.delete_company,
+            State.LIST_COMPANIES: self.database.list_companies,
         }
         if self.state == State.EXIT:
             return False  # Exit the loop.
