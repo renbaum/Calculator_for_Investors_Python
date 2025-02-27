@@ -1,6 +1,6 @@
 import os
 
-from sqlalchemy import Column, String, Integer, create_engine
+from sqlalchemy import Column, String, Integer, create_engine, func
 from sqlalchemy.orm import declarative_base, sessionmaker
 import pandas as pd
 from state import State
@@ -28,12 +28,11 @@ class Financial(Base):
     cash_equivalents = Column(Integer)
     liabilities = Column(Integer)
 
-    def get_calculation(self, a: float, b: float) -> float:
+    def get_calculation(self, a: float, b: float) -> str:
         try:
             x = a / b
         except Exception:
             return None
-        
         return str(round(x, 2))
 
     def get_PE(self):
@@ -48,11 +47,23 @@ class Financial(Base):
     def get_NB_EBITDA(self):
         return self.get_calculation(self.net_debt, self.ebitda)
 
+    def get_NB_EBITDA_num(self):
+        if not self.net_debt or not self.ebitda: return 0
+        return self.net_debt / self.ebitda
+
     def get_ROE(self):
         return self.get_calculation(self.net_profit, self.equity)
 
+    def get_ROE_num(self):
+        if not self.net_profit or not self.equity: return 0
+        return self.net_profit / self.equity
+
     def get_ROA(self):
         return self.get_calculation(self.net_profit, self.assets)
+
+    def get_ROA_num(self):
+        if not self.net_profit or not self.assets: return 0
+        return self.net_profit / self.assets
 
     def get_LA(self):
         return self.get_calculation(self.liabilities, self.assets)
@@ -191,6 +202,34 @@ class Database():
         companies = self.session.query(Companies).order_by(Companies.ticker).all()
         for company in companies:
             print(f"{company.ticker} {company.name} {company.sector}")
+        return State.MAIN_MENU
+    
+    def list_companies_by_calc(self, state: State):
+
+        financials = self.session.query(Financial).all()
+
+        match state:
+            case State.LIST_COMPANIES_BY_ND_EBITDA:
+                print("TICKER ND/EBITDA")
+                financials = sorted(financials, key=lambda financial: financial.get_NB_EBITDA_num(), reverse=True)
+            case State.LIST_COMPANIES_BY_ROE:
+                print("TICKER ROE")
+                financials = sorted(financials, key=lambda financial: financial.get_ROE_num(), reverse=True)
+            case State.LIST_COMPANIES_BY_ROA:
+                print("TICKER ROA")
+                financials = sorted(financials, key=lambda financial: financial.get_ROA_num(), reverse=True)
+
+        counter = 0
+        for financial in financials:
+            if counter == 10: break
+            match state:
+                case State.LIST_COMPANIES_BY_ND_EBITDA:
+                    print(f"{financial.ticker} {financial.get_NB_EBITDA()}")
+                case State.LIST_COMPANIES_BY_ROE:
+                    print(f"{financial.ticker} {financial.get_ROE()}")
+                case State.LIST_COMPANIES_BY_ROA:
+                    print(f"{financial.ticker} {financial.get_ROA()}")
+            counter += 1
         return State.MAIN_MENU
 
 
